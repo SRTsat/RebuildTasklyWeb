@@ -2,26 +2,49 @@
 
 namespace Database\Seeders;
 
+use App\Models\CompanyCategory;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => 'password',
-                'email_verified_at' => now(),
-            ]
-        );
+        $superAdminRole = Role::create(['name' => 'super-admin']);
+        $ownerCompanyRole = Role::create(['name' => 'company-owner']);
+
+        $categories = [
+            'Technology & Software',
+            'Marketing & Creative',
+            'Construction & Real Estate',
+            'Education & Training',
+            'Finance & Accounting',
+            'Healthcare',
+            'Other'
+        ];
+
+        foreach ($categories as $category) {
+            CompanyCategory::create([
+                'name' => $category,
+                'slug' => Str::slug($category),
+            ]);
+        }
+
+        $superAdmin = User::create([
+            'name'              => 'Super Admin',
+            'email'             => 'superadmin@localhost.com',
+            'password'          => Hash::make('password'),
+            'email_verified_at' => now(),
+            'remember_token'    => Str::random(10),
+            'two_factor_confirmed_at'   => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_secret'         => null,
+        ]);
+        $superAdmin->assignRole($superAdminRole);
     }
 }
