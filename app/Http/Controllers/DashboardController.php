@@ -7,11 +7,14 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 
-class DashboardController extends Controller
+class DashboardController extends BaseController
 {
     public function index(Request $request)
     {
+        // Bisa pakai method dari BaseController:
+        $user = $this->currentUser();  // ← PAKAI INI atau $request->user()
         $user = $request->user();
+        
         $stats = [];
         $activities = [];
 
@@ -44,9 +47,16 @@ class DashboardController extends Controller
             }
         }
 
-        return Inertia::render('dashboard', [
+        // Bisa pakai method dari BaseController:
+        return $this->inertiaRender('dashboard', [
             'stats'      => $stats,
             'activities' => $activities
         ]);
+        
+        // Atau tetap pakai cara lama:
+        // return Inertia::render('dashboard', [
+        //     'stats'      => $stats,
+        //     'activities' => $activities
+        // ]);
     }
 }
